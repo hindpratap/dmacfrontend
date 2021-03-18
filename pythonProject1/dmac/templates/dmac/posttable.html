@@ -155,7 +155,7 @@ function mouseup(ev){
 
 </script>
   </head>
-  <body style="background-color:#000000;height:100%;width:100%">
+  <body style="background-image: url('https://bccs.tech/wp-content/uploads/2020/05/SAP-Kicks-Off-First-SAP.jpg');height:100%;width:100%">
   <div class="container" style="background-color: #A4A4A4;height:790px; width:1500px border-style:double;">
 
       <div class="row" style="height:150px"> <center><h1 style="margin-top:30px; font-size:70px;font-family:coperplate"> <b>Welcome to Dmac</b>
@@ -322,7 +322,7 @@ function mouseup(ev){
                              <fieldset class="uk-fieldset uk-padding uk-card uk-card-default my--display" data-class="form-fieldset">
                              <legend class="uk-legend uk-margin-bottom uk-flex uk-flex-center uk-flex-middle">
                              <select  name="tablename"  class="form-select" multiple aria-label=" multiple select example">
-  <option selected>Open this select menu</option>
+
        {% for i in tablename_list %}
                                  <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
@@ -401,42 +401,50 @@ function mouseup(ev){
 <!--                          </div>-->
 <!--                        </div></div>-->
 <!--                    </div>-->
-                    <div style="overflow-x:auto;overflow-y:auto">
-         <table id="tableOne" class="table table-striped table-hover" >
-  {% for i in columnss1 %}
-                <th>{{ i }}</th>{% endfor %}
-                {% for j in valuess1 %}
-                <tr> {% for k in j %}
-                    <td>{{ k }}</td>{% endfor %}</tr>
-
-                {% endfor %}
-
-                </table></div>
-                           <div style="overflow-x:auto;overflow-y:auto">
-         <table id="tableOne" class="table table-striped table-hover" >
-  {% for i in columnss2 %}
-                <th>{{ i }}</th>{% endfor %}
-                {% for j in valuess2 %}
-                <tr> {% for k in j %}
-                    <td>{{ k }}</td>{% endfor %}</tr>
-
-                {% endfor %}
-
-                </table></div>
 <!--                    <div style="overflow-x:auto;overflow-y:auto">-->
-<!--                       {% for s in maincolumns  %}-->
 <!--         <table id="tableOne" class="table table-striped table-hover" >-->
-
-<!--  {% for i in s %}-->
+<!--  {% for i in columnss1 %}-->
 <!--                <th>{{ i }}</th>{% endfor %}-->
-<!--{% for d in mainvalues %}-->
-<!--             {% for f in  d %}-->
-<!--                <tr> {% for k in f %}-->
+<!--                {% for j in valuess1 %}-->
+<!--                <tr> {% for k in j %}-->
 <!--                    <td>{{ k }}</td>{% endfor %}</tr>-->
 
 <!--                {% endfor %}-->
 
-<!--             </table>{% endfor %}</div>-->
+<!--                </table></div>-->
+<!--                           <div style="overflow-x:auto;overflow-y:auto">-->
+<!--         <table id="tableOne" class="table table-striped table-hover" >-->
+<!--  {% for i in columnss2 %}-->
+<!--                <th>{{ i }}</th>{% endfor %}-->
+<!--                {% for j in valuess2 %}-->
+<!--                <tr> {% for k in j %}-->
+<!--                    <td>{{ k }}</td>{% endfor %}</tr>-->
+
+<!--                {% endfor %}-->
+
+<!--                </table></div>-->
+
+<!--Val-->
+
+                     <div style="overflow-x:auto;overflow-y:auto">
+{% for key1, value1 in d_columns.items %}
+         <table id="tableOne" class="table table-striped table-hover" >
+{% for key2, value2 in d_values.items %}
+             {% if key1 == key2 %}
+  {% for i in value1 %}
+                <th>{{ i }}</th>{% endfor %}
+
+                {% for j in value2 %}
+                <tr> {% for k in j %}
+                    <td>{{ k }}</td>{% endfor %}</tr>
+
+{% endfor %}
+
+{% endif %}
+             {% endfor %}
+                </table>{% endfor %}</div>
+<!--EndVal-->
+
 
 
 
@@ -446,7 +454,6 @@ function mouseup(ev){
                     <fieldset class="uk-fieldset uk-padding uk-card uk-card-default my--display" data-class="form-fieldset">
                              <legend class="uk-legend uk-margin-bottom uk-flex uk-flex-center uk-flex-middle">
                              <select  name="tablename"  class="form-select" multiple aria-label=" multiple select example">
-  <option selected>Open this select menu</option>
        {% for i in lists %}
                                  <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}

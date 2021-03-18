@@ -17,6 +17,7 @@ urlpatterns = [
     path('mergetable/', views.merge_table, name='mergetable'),
     path('post/', views.post, name='post'),
     path('rest/', views.rest, name='rest'),
+    path('dmacpage/', views.dmacpage, name='dmacpage'),
     path('table/', views.Table, name ="table"),
     path('finaljson/', views.finaljson, name ="finaljson"),
     path('posttable/', views.posttable, name ="posttable"),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('concatdata/', views.concatdata, name ="concatdata"),
     path('concattable/', views.concattable, name ="concattable"),
     path('thankyou/', views.thankyou, name ="thankyou"),
+    path('dragdrop/', views.dragdrop, name ="dragdrop"),
     # path('jsonreducer/', views.jsonreducer, name ="jsonreducer"),
     # path('save_json_to_table/', views.save_json_to_table, name ="save_json_to_table"),
 

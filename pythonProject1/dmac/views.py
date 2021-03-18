@@ -70,10 +70,16 @@ def adminhome(request):
     #     {"id":"03","phone":"4334345"},
     #     {"id":"04","phone":"4545455"}
     # ]
+    module_dict1 = [ "module 1", "module 2", "module 3"]
+    # module_dict = {"0": "module x", "1": "module y", "2": "modulez"}
+    # module_dict = json.dumps(module_dict)
+    module_dict1 = json.dumps(module_dict1)
     try:
         engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
         df_aws2 = pd.read_sql_query("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';", con=engine)
         tablename_list = list(df_aws2["relname"])
+        module_dict = tablename_list
+        module_dict11 = json.dumps(module_dict)
     except:
         tablename_list=["table1","table2","table3"]
 
@@ -81,7 +87,7 @@ def adminhome(request):
     # data1=df_aws1.to_json(orient='records')
 
     print("Hello Hind this is your updated dataframe of D-mac")
-    return render(request,'dmac/login.html',{'tablename_list':tablename_list})
+    return render(request,'dmac/login.html',{'tablename_list':tablename_list,'module_dict1':module_dict1,'module_dict11':module_dict11})
 
 
 def Table(request):
@@ -246,9 +252,27 @@ def post(request):
     #     mainvalues.append(valuess1)
     #     columnss1 = [list(x.keys()) for x in s1][0]
     #     maincolumns.append(columnss1)
-    # # print(maincolumns)
-    # # print("values")
-    # # print(mainvalues)
+
+    for i in range(len(table_name)):
+        l1 = pd.read_sql_query(f'select * from {table_name[i]}', con=engine)
+        mkt = l1.iloc[0:, 1:]
+        dataft = mkt.to_json(orient='records')
+        s1 = json.loads(dataft)
+        valuess1 = [list(x.values()) for x in s1]
+        # d_cities = dict.fromkeys(cities, 'UK')
+        mainvalues.append(valuess1)
+        columnss1 = [list(x.keys()) for x in s1][0]
+        maincolumns.append(columnss1)
+    d_columns = dict(zip(table_name, maincolumns))
+    d_values = dict(zip(table_name, mainvalues))
+    # colx=dict(zip(maincolumns,mainvalues))
+
+    # print(colx)
+    print(d_columns)
+    print(d_values)
+    # print(maincolumns)
+    # print("values")
+    # print(mainvalues)
     #     cid=mainvalues[0]
     #     cid1=mainvalues[1]
     #     cid2=mainvalues[2]
@@ -257,20 +281,20 @@ def post(request):
     #     lis2=maincolumns[2]
 
 
-    l1 = pd.read_sql_query(f'select * from {table_name[0]}', con=engine)
-    l2 = pd.read_sql_query(f'select * from {table_name[1]}', con=engine)
-    mkt = l1.iloc[0:, 1:]
-    dataft = mkt.to_json(orient='records')
-    s1 = json.loads(dataft)
-    mkt1 = l2.iloc[0:, 1:]
-    dat = mkt1.to_json(orient='records')
-    s2 = json.loads(dat)
-    valuess1 = [list(x.values()) for x in s1]
-        # # get the column names
-    columnss1 = [list(x.keys()) for x in s1][0]
-    valuess2 = [list(x.values()) for x in s2]
-    # # get the column names
-    columnss2 = [list(x.keys()) for x in s2][0]
+    # l1 = pd.read_sql_query(f'select * from {table_name[0]}', con=engine)
+    # l2 = pd.read_sql_query(f'select * from {table_name[1]}', con=engine)
+    # mkt = l1.iloc[0:, 1:]
+    # dataft = mkt.to_json(orient='records')
+    # s1 = json.loads(dataft)
+    # mkt1 = l2.iloc[0:, 1:]
+    # dat = mkt1.to_json(orient='records')
+    # s2 = json.loads(dat)
+    # valuess1 = [list(x.values()) for x in s1]
+    #     # # get the column names
+    # columnss1 = [list(x.keys()) for x in s1][0]
+    # valuess2 = [list(x.values()) for x in s2]
+    # # # get the column names
+    # columnss2 = [list(x.keys()) for x in s2][0]
 
     lists=[]
     for i in range(len(table_name)):
@@ -283,8 +307,8 @@ def post(request):
         columns = [list(x.keys()) for x in dataftj][0]
         for j in columns:
             lists.append(j+"_"+(table_name[i]))
-    return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'module_dict':module_dict,'columnss1':columnss1,'columnss2':columnss2,'valuess1':valuess1,'valuess2':valuess2,'lists':lists})
-    # return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'lis':lis,'lis1':lis1,'lis2':lis2,'cid':cid,'cid1':cid1,'cid2':cid2,'module_dict':module_dict,'maincolumns':maincolumns,'mainvalues':mainvalues,'lists':lists})
+    # return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'module_dict':module_dict,'columnss1':columnss1,'columnss2':columnss2,'valuess1':valuess1,'valuess2':valuess2,'lists':lists})
+    return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'module_dict':module_dict,'maincolumns':maincolumns,'mainvalues':mainvalues,'lists':lists,'d_columns':d_columns,'d_values':d_values})
 
 # @api_view(["POST"])
 def postdata(request):
@@ -365,7 +389,18 @@ def rest(request):
 #     print(ckt)
 #     return render(request,'dmac/posttable.html')
 def thankyou(request):
-    return render(request,'dmac/thankyou.html')
+    engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+    # engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+    df_aws2 = pd.read_sql_query("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';",
+                                con=engine)
+    tablename_list = list(df_aws2["relname"])
+
+    # # l3.to_sql('legacytable3', engine,  if_exists='append')
+    l1 = pd.read_sql_query('select * from "saptable1" ', con=engine)
+    mkt = l1.iloc[0:, 1:]
+    data=mkt
+
+    return render(request,'dmac/thankyou.html',{'data':data})
 
 
 
@@ -440,7 +475,32 @@ def addtable(request):
     columns2 = [list(x.keys()) for x in dataftj1][0]
     # merg1["Full Name"] = merg1["First Name"] + "  " + merg1["Last Name"]
 
-    return render(request,'dmac/login.html',{'merg1':merg1,'concat':concat,'tablename_list':tablename_list,'columns2':columns2,'values2':values2})
+    # display colums
+    lists = []
+    # for i in range(len(table_name))
+    dataft = m1.to_json(orient='records')
+    dataftj = json.loads(dataft)
+    dill = m2.to_json(orient='records')
+    dill2 = json.loads(dill)
+    col1 = [list(x.keys()) for x in dataftj][0]
+    col2 = [list(x.keys()) for x in dill2][0]
+    for j in col1:
+        lists.append(j + "_" + (table1))
+    for j in col2:
+        lists.append(j + "_" + (table2))
+    # for i in range(len(table_name)):
+    #     l1 = pd.read_sql_query(f'select * from {table_name[i]}', con=engine)
+    #     mkt = l1.iloc[0:, 1:]
+    #     dataft = mkt.to_json(orient='records')
+    #     dataftj = json.loads(dataft)
+    #     # values = [list(x.values()) for x in dataftj]
+    #     # # get the column names
+    #     columns = [list(x.keys()) for x in dataftj][0]
+    #     for j in columns:
+    #         lists.append(j + "_" + (table_name[i]))
+    module_dict = json.dumps(lists)
+
+    return render(request,'dmac/login.html',{'merg1':merg1,'concat':concat,'tablename_list':tablename_list,'columns2':columns2,'values2':values2,'module_dict':module_dict})
 
 
 
@@ -479,6 +539,60 @@ def concatdata(request):
         # return JsonResponse("Ideal weight should be:" + data1, safe=False)
         return JsonResponse(table_name, safe=False)
 
+def dragdrop(request):
+    if request.method== 'POST':
+        datam = request.POST.get('json_items')
+        data=datam.split(",")
+        # data1 = request.POST.get('page_contents[]')
+        print(data)
+        print(type(data))
+
+        kim = []
+        kim2 = []
+        for i in data:
+            kl = i.split("_")
+            kim.append(kl[0])
+            kim2.append(kl[1])
+        print(kim)
+        dim = set(kim2)
+        print(dim)
+        lik = list(dim)
+
+        # table="your selected table:"+" "+table_name
+        engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+        # engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+        df_aws2 = pd.read_sql_query("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';",
+                                    con=engine)
+        tablename_list = list(df_aws2["relname"])
+
+        # # l3.to_sql('legacytable3', engine,  if_exists='append')
+        l1 = pd.read_sql_query(f'select * from {lik[0]}', con=engine)
+        mkt = l1.iloc[0:, 1:]
+        l2 = pd.read_sql_query(f'select * from {lik[1]}', con=engine)
+        mkt1 = l2.iloc[0:, 1:]
+        ckt1 = pd.merge(mkt, mkt1, how="outer")
+
+        # ckt1=pd.concat([mkt,mkt1],axis=1)
+        print(ckt1)
+        ckt = ckt1[kim]
+        # ckt.to_sql(desc, engine, if_exists='append')
+        # obj=EmployeeEmails.objects.create(table1="new")
+        # print(ckt)
+        # fz=EmployeeEmails.objects.all()
+        # ms=fz
+        # print(ms)
+        dataft = ckt.to_json(orient='records')
+        dataftj = json.loads(dataft)
+        valuesld = [list(x.values()) for x in dataftj]
+        # # # get the column names
+        columnsld = [list(x.keys()) for x in dataftj][0]
+    return render(request, 'dmac/login.html',{'columnsld':columnsld,'valuesld':valuesld,'tablename_list':tablename_list})
+
+def dmacpage(request):
+    engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+    df_aws2 = pd.read_sql_query("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';",con=engine)
+    tablename_list = list(df_aws2["relname"])
+    return render(request,'dmac/dmac.html',{'tablename_list':tablename_list})
 
 #
 # @csrf_exempt

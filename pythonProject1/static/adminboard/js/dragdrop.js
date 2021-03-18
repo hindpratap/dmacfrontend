@@ -177,24 +177,21 @@ $(function() {
   });
 
 // Get value in json
-const courseForm = document.querySelector('#courseForm');
+const dragdropForm = document.querySelector('#dragdropForm');
 const textjson = document.querySelector('.selected-list');
 
-courseForm.addEventListener('submit', e => {
+dragdropForm.addEventListener('submit', e => {
   let jsonArr = [];
   
   let litem = document.querySelector('.dragSortableItems').querySelector('.selectedDropzone').querySelectorAll('li');
-  const noListError = document.querySelector('.noListError');
 
   if(litem.length === 0){
     e.preventDefault();
-    noListError.classList.remove('uk-hidden');
   }else{
     [...litem].map(e => {
       jsonArr.push(e.innerText);
     })
     textjson.value = jsonArr;
-    noListError.classList.add('uk-hidden');
   }
 })
 
