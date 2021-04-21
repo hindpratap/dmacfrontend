@@ -1,11 +1,8 @@
 from django.shortcuts import render,redirect
 import pandas as pd
+# import html5lib
+# import requests
 from sqlalchemy import create_engine
-from qr_code.qrcode.utils import QRCodeOptions
-# from __future__ import print_function
-import pyzbar.pyzbar as pyzbar
-import numpy as np
-import cv2
 
 # from django.contrib.auth import login, logout, authenticate
 # from django.contrib.auth.decorators import login_required
@@ -248,6 +245,7 @@ def post(request):
     tablename_list = list(df_aws2["relname"])
     mainvalues=[]
     maincolumns=[]
+    colfunctionlist = []
     # for i in range(len(table_name)):
     #     l1 = pd.read_sql_query(f'select * from {table_name[i]}', con=engine)
     #     mkt = l1.iloc[0:, 1:]
@@ -262,6 +260,7 @@ def post(request):
         l1 = pd.read_sql_query(f'select * from {table_name[i]}', con=engine)
         mkt = l1.iloc[0:, 1:]
         dataft = mkt.to_json(orient='records')
+        colfunctionlist.append(dataft)
         s1 = json.loads(dataft)
         valuess1 = [list(x.values()) for x in s1]
         # d_cities = dict.fromkeys(cities, 'UK')
@@ -270,6 +269,12 @@ def post(request):
         maincolumns.append(columnss1)
     d_columns = dict(zip(table_name, maincolumns))
     d_values = dict(zip(table_name, mainvalues))
+    manag=[1,2]
+    # print(maincolumns)
+    stick1=maincolumns[0]
+    stick2=maincolumns[1]
+    tab1=colfunctionlist[0]
+    tab2=colfunctionlist[1]
     # colx=dict(zip(maincolumns,mainvalues))
 
     # print(colx)
@@ -313,7 +318,7 @@ def post(request):
         for j in columns:
             lists.append(j+"_"+(table_name[i]))
     # return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'module_dict':module_dict,'columnss1':columnss1,'columnss2':columnss2,'valuess1':valuess1,'valuess2':valuess2,'lists':lists})
-    return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'module_dict':module_dict,'maincolumns':maincolumns,'mainvalues':mainvalues,'lists':lists,'d_columns':d_columns,'d_values':d_values})
+    return render(request,'dmac/posttable.html',{'tab1':tab1,'tab2':tab2,'stick1':stick1,'stick2':stick2,'manag':manag,'tablename_list':tablename_list,'module_dict':module_dict,'maincolumns':maincolumns,'mainvalues':mainvalues,'lists':lists,'d_columns':d_columns,'d_values':d_values})
 
 # @api_view(["POST"])
 def postdata(request):
@@ -343,13 +348,13 @@ def postdata(request):
 def rest(request):
     # try:
     if request.method == "POST":
-        table_name = request.POST.getlist('tablename')
-        desc = request.POST.get('desc')
+        table_names = request.POST.getlist('tablename')
+        # desc = request.POST.get('desc')
         # table_name = json.loads(table_name.body)
-    print(table_name)
+    print(table_names)
     kim = []
     kim2 = []
-    for i in table_name:
+    for i in table_names:
         kl=i.split("_")
         kim.append(kl[0])
         kim2.append(kl[1])
@@ -358,37 +363,82 @@ def rest(request):
     print(dim)
     lik=list(dim)
 
+    k1 = kim[0]
+    k2 = kim[1]
 
+
+        # table_name = json.loads(table_name.body)
+
+    mainvalues = []
+    maincolumns = []
+    colfunctionlist = []
+    module_dict = {"0": "module 1", "1": "module 2", "2": "module3"}
+    engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+    for i in range(len(lik)):
+        l1 = pd.read_sql_query(f'select * from {lik[i]}', con=engine)
+        mkt = l1.iloc[0:, 1:]
+        dataft = mkt.to_json(orient='records')
+        colfunctionlist.append(dataft)
+        s1 = json.loads(dataft)
+        valuess1 = [list(x.values()) for x in s1]
+        # d_cities = dict.fromkeys(cities, 'UK')
+        mainvalues.append(valuess1)
+        columnss1 = [list(x.keys()) for x in s1][0]
+        maincolumns.append(columnss1)
+    d_columns = dict(zip(lik, maincolumns))
+    d_values = dict(zip(lik, mainvalues))
+    manag = [1, 2]
+    # print(maincolumns)
+    stick1 = maincolumns[0]
+    stick2 = maincolumns[1]
+    tab1 = colfunctionlist[0]
+    tab2 = colfunctionlist[1]
+
+    lists = []
+
+    for i in range(len(lik)):
+        l1 = pd.read_sql_query(f'select * from {lik[i]}', con=engine)
+        mkt = l1.iloc[0:, 1:]
+        dataft = mkt.to_json(orient='records')
+        dataftj = json.loads(dataft)
+        # values = [list(x.values()) for x in dataftj]
+        # # get the column names
+        columns = [list(x.keys()) for x in dataftj][0]
+        for j in columns:
+            lists.append(j + "_" + (lik[i]))
 
     # table="your selected table:"+" "+table_name
-    engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
+
     # engine = create_engine('postgresql://postgres:Programming123@localhost:5432/postgres')
     df_aws2 = pd.read_sql_query("select relname from pg_class where relkind='r' and relname !~ '^(pg_|sql_)';",
                                 con=engine)
     tablename_list = list(df_aws2["relname"])
 
-    # # l3.to_sql('legacytable3', engine,  if_exists='append')
-    l1 = pd.read_sql_query(f'select * from {lik[0]}', con=engine)
-    mkt = l1.iloc[0:, 1:]
-    l2 = pd.read_sql_query(f'select * from {lik[1]}', con=engine)
-    mkt1 = l2.iloc[0:, 1:]
-    ckt1=pd.merge(mkt,mkt1,how="outer")
+    # # # l3.to_sql('legacytable3', engine,  if_exists='append')
+    # l1 = pd.read_sql_query(f'select * from {lik[0]}', con=engine)
+    # mkt = l1.iloc[0:, 1:]
+    # l2 = pd.read_sql_query(f'select * from {lik[1]}', con=engine)
+    # mkt1 = l2.iloc[0:, 1:]
+    # ckt1=pd.merge(mkt,mkt1,how="outer")
+    #
+    # # ckt1=pd.concat([mkt,mkt1],axis=1)
+    # print(ckt1)
+    # ckt=ckt1[kim]
+    # ckt.to_sql(desc, engine, if_exists='append')
+    # # obj=EmployeeEmails.objects.create(table1="new")
+    # # print(ckt)
+    # # fz=EmployeeEmails.objects.all()
+    # # ms=fz
+    # # print(ms)
+    # dataft = ckt.to_json(orient='records')
+    # dataftj =json.loads(dataft)
+    # valuesld = [list(x.values()) for x in dataftj]
+    # # # # get the column names
+    # columnsld = [list(x.keys()) for x in dataftj][0]
+    # return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'valuesld':valuesld,'columnsld':columnsld})
+    # return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,})
+    return render(request,'dmac/posttable.html',{'k1':k1,'k2':k2,'tab1':tab1,'tab2':tab2,'stick1':stick1,'stick2':stick2,'manag':manag,'tablename_list':tablename_list,'module_dict':module_dict,'maincolumns':maincolumns,'mainvalues':mainvalues,'lists':lists,'d_columns':d_columns,'d_values':d_values})
 
-    # ckt1=pd.concat([mkt,mkt1],axis=1)
-    print(ckt1)
-    ckt=ckt1[kim]
-    ckt.to_sql(desc, engine, if_exists='append')
-    # obj=EmployeeEmails.objects.create(table1="new")
-    # print(ckt)
-    # fz=EmployeeEmails.objects.all()
-    # ms=fz
-    # print(ms)
-    dataft = ckt.to_json(orient='records')
-    dataftj =json.loads(dataft)
-    valuesld = [list(x.values()) for x in dataftj]
-    # # # get the column names
-    columnsld = [list(x.keys()) for x in dataftj][0]
-    return render(request,'dmac/posttable.html',{'tablename_list':tablename_list,'valuesld':valuesld,'columnsld':columnsld})
 
 # def capital(request,ckt):
 #     print(ckt)
@@ -405,7 +455,157 @@ def thankyou(request):
     mkt = l1.iloc[0:, 1:]
     data=mkt
 
-    return render(request,'dmac/thankyou.html',{'data':data})
+    # response = requests.get('http://127.0.0.1:8000/rest/')
+    # tables = pd.read_html(r.text)
+    # print('Tables found:', len(tables))
+    # print(tables)
+    # print(r.text)
+    # Parse the HTML pages
+
+    # from bs4 import BeautifulSoup
+    # soup = BeautifulSoup(response.text, 'html.parser')
+    # det = soup.find_all("table")
+    # tables = pd.read_html(response.text)
+    # print(tables)
+
+    # You can extract the page title as string as well
+
+    # Find all the h3 elements
+    # print(f"{tutorialpoints_page.find_all('h2')}")
+    # tags = tutorialpoints_page.find(
+    #     lambda elm: elm.name == "h2" or elm.name == "h3" or elm.name == "h4" or elm.name == "h5" or elm.name == "h6")
+    # for sibling in tags.find_next_siblings():
+    #     if sibling.name == "table":
+    #         my_table = sibling
+    # df = pd.read_html(str(my_table))
+    # print(df)
+    if request.method == "POST":
+        tabl = request.POST.get('jsonData')
+        rules = request.POST.getlist('rules')
+        print(rules)
+        sit = json.loads(tabl)
+        frame = pd.DataFrame(sit)
+        frame = frame.iloc[0:, 1:]
+        plusdata1 = frame.to_json(orient='records')
+        plusdata2 = json.loads(plusdata1)
+        # git = {'lispr':sit}
+        # print(git)
+
+        def del_none(d):
+            """
+            Delete keys with the value ``None`` in a dictionary, recursively.
+
+            This alters the input so you may wish to ``copy`` the dict first.
+            """
+            # For Python 3, write `list(d.items())`; `d.items()` won’t work
+            # For Python 2, write `d.items()`; `d.iteritems()` won’t work
+            for key, value in list(d.items()):
+                if value == "":
+                    del d[key]
+                elif isinstance(value, dict):
+                    del_none(value)
+            return d  # For convenience
+        listdf = []
+        for f in plusdata2:
+            listdf.append(del_none(f.copy()))
+            print(del_none(f.copy()))
+
+
+
+            # def del_none(f):
+            #     for key, value in list(f.items()):
+            #         if value is None:
+            #             del f[key]
+            #         elif isinstance(value, dict):
+            #             del_none(value)
+            #         lift.append(f)
+            # # return d
+            #
+            # del_none(f.copy())
+
+
+
+
+
+        print(listdf)
+
+
+
+
+
+        # print(frame)
+        # print(frame.info)
+
+        # print(plusdata)
+        # tablu = JSONParser().parse('jsonData')
+        # desc = request.POST.get('desc')
+        # table_name = json.loads(table_name.body)
+    # print(type(plusdata))
+    plusdata = listdf
+    plusdata.sort(key=lambda item: item.get("NAME"))
+    # print(plusdata)
+
+
+    for i in range(len(plusdata) - 1):
+        if (plusdata[i]["NAME"] == plusdata[i + 1]["NAME"]):
+                plusdata[i].update(plusdata[i + 1])
+
+        for i in range(len(plusdata) - 1):
+            if (plusdata[i]["NAME"] == plusdata[i + 1]["NAME"]):
+                plusdata[i].update(plusdata[i + 1])
+                plusdata[i + 1].update(plusdata[i])
+        fitdata = list(unique_everseen(plusdata, key=lambda item: frozenset(item.items())))
+        # print(fitdata)
+        l1 = pd.DataFrame(fitdata)
+
+        print(l1)
+    try:
+        if rules[0]=="name_spliter":
+            def string_split(x):
+                fd = x.split(" ")
+                return fd[0]
+
+            l1["first_name"] = l1["NAME"].apply(string_split)
+
+            def string_last(x):
+                try:
+                    fd = x.split(" ")
+                    return fd[1]
+                except:
+                    pass
+
+            l1["last_name"] = l1["NAME"].apply(string_last)
+            table1 = l1.to_html()
+        elif rules[0]=="string resizer":
+            def digit_tracker(x):
+                d = str(x)
+                k = len(d)
+                if k <= 8:
+                    spd = "0" * (8 - k) + d
+                    return spd
+                else:
+                    spd = d[0:8]
+                    return spd
+
+            l1['PHONE_new'] = l1['PHONE'].apply(digit_tracker)
+            table1 = l1.to_html()
+
+        elif rules[0]=="first+last":
+            l1["merge_two_column"] = l1["NAME"]+" "+l1["WERKS"]
+            table1= l1.to_html()
+        else:
+            table1 = l1.to_html()
+    except:
+        l1.to_sql('mckinsolteam', engine, if_exists='append')
+        table1 = l1.to_html()
+
+
+    # print(rules[0])
+
+    return HttpResponse(table1)
+        # concat = l1.to_json(orient='records')
+        # final = json.loads(concat)
+    # return render(request,'dmac/thankyou.html',{'data':data})
 
 
 
@@ -599,64 +799,6 @@ def dmacpage(request):
     tablename_list = list(df_aws2["relname"])
     return render(request,'dmac/dmac.html',{'tablename_list':tablename_list})
 
-
-def barcode(request):
-    # Build context for rendering QR codes.
-    context = dict(
-        my_options=QRCodeOptions(size='t', border=6, error_correction='L'),
-    )
-
-    # Render the view.
-
-    # Main
-    # if __name__ == '__main__':
-    #     # Read image
-    #     im = cv2.imread('static/img/codebar.jpg')
-    #
-    #     decodedObjects = decode(im)
-    #     display(im, decodedObjects)
-    #
-    # def decode(im):
-    #     # Find barcodes and QR codes
-    #     decodedObjects = pyzbar.decode(im)
-    #     print(decodedObjects)
-    #
-    #
-    #     # Print results
-    #     for obj in decodedObjects:
-    #         print('Type : ', obj.type)
-    #         print('Data : ', obj.data, '\n')
-    #
-    #     return decodedObjects
-    #
-    # # Display barcode and QR code location
-    # def display(im, decodedObjects):
-    #
-    #     # Loop over all decoded objects
-    #     for decodedObject in decodedObjects:
-    #         points = decodedObject.polygon
-    #
-    #         # If the points do not form a quad, find convex hull
-    #         if len(points) > 4:
-    #             hull = cv2.convexHull(np.array([point for point in points], dtype=np.float32))
-    #             hull = list(map(tuple, np.squeeze(hull)))
-    #         else:
-    #             hull = points;
-    #
-    #         # Number of points in the convex hull
-    #         n = len(hull)
-    #
-    #         # Draw the convext hull
-    #         for j in range(0, n):
-    #             cv2.line(im, hull[j], hull[(j + 1) % n], (255, 0, 0), 3)
-    #
-    #     # Display results
-    #     cv2.imshow("Results", im);
-    #     cv2.waitKey(0);
-
-
-    return render(request,'dmac/barcode.html',{'context':context})
-
 #
 # @csrf_exempt
 # def article_list(request):
@@ -748,3 +890,6 @@ def barcode(request):
 #
 #     return JsonResponse(data, safe=False)
 #     # return JsonResponse(serializer.errors, status=400)
+
+def tables(request):
+    return render(request,'dmac/table.html')
