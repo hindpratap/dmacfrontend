@@ -29,6 +29,7 @@ urlpatterns = [
     path('concattable/', views.concattable, name ="concattable"),
     path('thankyou/', views.thankyou, name ="thankyou"),
     path('dragdrop/', views.dragdrop, name ="dragdrop"),
+    path('barcode/', views.barcode, name ="barcode"),
     # path('jsonreducer/', views.jsonreducer, name ="jsonreducer"),
     # path('save_json_to_table/', views.save_json_to_table, name ="save_json_to_table"),
 

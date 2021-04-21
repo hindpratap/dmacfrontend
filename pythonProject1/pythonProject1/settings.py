@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dmac',
+    'qr_code',
     # 'social_django',
 ]
 
